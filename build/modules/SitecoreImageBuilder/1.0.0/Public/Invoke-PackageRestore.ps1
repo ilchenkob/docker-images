@@ -69,22 +69,27 @@ function Invoke-PackageRestore
     $expected | ForEach-Object {
         $filePath = $_
 
+        $fileName = ($filePath.Replace(("{0}" -f $destinationPath), "")) -replace "([\/\\])", ""
+        $package = $packages.$fileName
+
         if (Test-Path $filePath -PathType Leaf)
         {
             $requiredFile = Get-Item -Path $filePath
 
             if ($requiredFile.Length -gt 0)
             {
-                Write-Message ("Required package found: '{0}'" -f $filePath) -Level Debug
+                $requiredFileHash = $(Get-FileHash -Path $filePath).Hash
+                
+                if ($package.hash -eq $requiredFileHash)
+                {
+                    Write-Message ("Required package found: '{0}'" -f $filePath) -Level Debug
 
-                return
+                    return
+                }
             }
 
             Remove-Item -Path $filePath -Force
         }
-
-        $fileName = ($filePath.Replace(("{0}" -f $destinationPath), "")) -replace "([\/\\])", ""
-        $package = $packages.$fileName
 
         if ($null -eq $package)
         {
