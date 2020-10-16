@@ -74,18 +74,13 @@ function Invoke-PackageRestore
 
         if (Test-Path $filePath -PathType Leaf)
         {
-            $requiredFile = Get-Item -Path $filePath
+            $requiredFileHash = $(Get-FileHash -Path $filePath).Hash
 
-            if ($requiredFile.Length -gt 0)
+            if ($package.hash -eq $requiredFileHash)
             {
-                $requiredFileHash = $(Get-FileHash -Path $filePath).Hash
-                
-                if ($package.hash -eq $requiredFileHash)
-                {
-                    Write-Message ("Required package found: '{0}'" -f $filePath) -Level Debug
+                Write-Message ("Required package found: '{0}'" -f $filePath) -Level Debug
 
-                    return
-                }
+                return
             }
 
             Remove-Item -Path $filePath -Force
